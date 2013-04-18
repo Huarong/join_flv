@@ -40,10 +40,8 @@ def append_first_file(binary_file_object, output_file_object):
         # Append audio and video tags.
         else:
             timestamp = binary_file_object.read(3)
-            output_file_object.write(tag_type)
-            output_file_object.write(data_size)
-            output_file_object.write(timestamp)
-            output_file_object.write(binary_file_object.read(1 + 3 + data_size_int + 4))
+            to_write = [tag_type, data_size, timestamp, binary_file_object.read(1 + 3 + data_size_int + 4)]
+            output_file_object.writelines(to_write)
     global timestamp_offset
     timestamp_offset += struct.unpack('>i', '\x00' + timestamp)[0] + 30
     binary_file_object.close()
@@ -72,10 +70,8 @@ def append_other_file(binary_file_object, output_file_object):
             timestamp = binary_file_object.read(3)
             new_timestamp = struct.unpack('>i', '\x00' + timestamp)[0] + timestamp_offset
             packed_new_timestamp = struct.pack('>i', new_timestamp)[1:]
-            output_file_object.write(tag_type)
-            output_file_object.write(data_size)
-            output_file_object.write(packed_new_timestamp)
-            output_file_object.write(binary_file_object.read(1 + 3 + data_size_int + 4))
+            to_write = [tag_type, data_size, packed_new_timestamp, binary_file_object.read(1 + 3 + data_size_int + 4)]
+            output_file_object.writelines(to_write)
     timestamp_offset = new_timestamp + 30
     binary_file_object.close()
     return
